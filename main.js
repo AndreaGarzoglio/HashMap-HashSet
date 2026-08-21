@@ -1,5 +1,5 @@
-import { HashMap } from "./index.js";
-import { HashSet } from "./hashset.js";
+import { HashMap } from "./hashMap.js";
+import { HashSet } from "./hashSet.js";
 
 const test = new HashMap();
 
