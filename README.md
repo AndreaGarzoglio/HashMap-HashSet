@@ -14,13 +14,14 @@ operations), with the state updating live after every command.
 
 ```
 src/
-├── index.html         # UI markup (HashMap / HashSet tabs)
-├── index.js            # the HashMap and HashSet classes
-├── main.js             # wires the UI to the classes (event listeners, log, state)
-├── styles.css           # "terminal" theme (JetBrains Mono, dark, violet)
-├── index.test.js       # unit tests (Jest)
+├── index.html            # UI markup (HashMap / HashSet tabs)
+├── index.js              # the HashMap and HashSet classes
+├── main.js               # wires the UI to the classes (event listeners, log, state)
+├── annotated-source.js   # commented copies of the classes, shown in the "how it works" modal
+├── styles.css            # "terminal" theme (JetBrains Mono, dark, violet)
+├── index.test.js         # unit tests (Jest)
 └── __mocks__/
-    └── styleMock.js    # CSS mock used by the tests
+    └── styleMock.js      # CSS mock used by the tests
 ```
 
 Config files in the repo root: `webpack.config.js`, `babel.config.cjs`,
@@ -28,6 +29,11 @@ Config files in the repo root: `webpack.config.js`, `babel.config.cjs`,
 plus a `.husky/pre-commit` hook that runs `prettier` on staged files.
 
 ## The classes
+
+`HashMap` and `HashSet` both extend a shared `HashTable` base class that
+holds the bucket array, the hash function, key validation, `length()`,
+`currentLoad()` and `clear()`: the two subclasses only differ in what a
+bucket holds and how insertion/lookup use it.
 
 ### `HashMap`
 
@@ -39,42 +45,40 @@ A key/value map backed by buckets with separate chaining:
 - `get(key)`: returns the value tied to a key, or `null` if it is missing.
 - `has(key)`: checks whether a key is present.
 - `remove(key)`: removes a pair, returns `true`/`false`.
-- `length()`: number of pairs currently stored.
-- `currentLoad()`: the current load factor.
-- `clear()`: empties the map.
 - `keys()`, `values()`, `entries()`: lists of keys, values, or `[key, value]`
   pairs.
-- `hash(key)`: a polynomial hash function (base 31) used to compute the
-  bucket index.
 
-Keys must be strings (`validateKey`); an index outside the bucket array's
-bounds throws an error (`assertIndexInBounds`).
+A key can only ever map to one value: calling `set()` again with the same
+key overwrites the previous value instead of adding a second entry.
 
 ### `HashSet`
 
 Uses the same bucket/hashing logic as `HashMap`, but stores unique values
-only (no key/value pairs):
+only, with no separate value attached (the value itself acts as the key):
 
 - `set(value)`: adds a value if it is not already present.
 - `has(value)`: checks whether a value is present.
 - `remove(value)`: removes a value.
-- `length()`, `currentLoad()`, `clear()`, `keys()`: same behavior as in
-  `HashMap`.
+- `keys()`: list of stored values.
 
 ## The interactive UI
 
 Opening the app shows two tabs in the title bar, `~/hashmap.js` and
-`~/hashset.js`, each displaying:
+`~/hashset.js`. Each one is split into:
 
-- the **current state** of the structure, rendered as a list of buckets
-  (`[0] apple: red  [1] ·  [2] banana: yellow ...`), updated with a
-  typewriter effect after every command;
-- a **mutate** panel with the commands that change the structure (`set`,
-  `remove`, `clear`);
-- a **query** panel with read-only commands (`get`/`has`, `length`,
-  `currentLoad`, `entries`/`keys`);
-- a **log** at the bottom that tracks the latest commands and any errors
-  (for example, a missing field).
+- a **command panel** on the left, itself split into two clickable tabs:
+  - **mutate**: `set`, `remove`, `clear`;
+  - **query**: `get`/`has`, `length`, `currentLoad`, `keys`, `values`
+    (HashMap only) and `entries`;
+- an **entries view** on the right: one box per key (with its value next to
+  it for HashMap, or just the value for HashSet), updated live after every
+  command, along with an entry count, capacity and load factor;
+- a **"how it works"** button next to each title that opens a commented
+  copy of that structure's source (`annotated-source.js`), explaining
+  hashing, collisions and resizing line by line;
+- a **log** pinned at the bottom of the window, always visible: it tracks
+  the latest commands and any errors (for example, a missing field), newest
+  first, scrolling horizontally.
 
 Both structures' state is saved to `localStorage`, so it survives a page
 reload.

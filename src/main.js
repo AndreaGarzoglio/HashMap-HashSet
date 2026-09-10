@@ -1,4 +1,5 @@
 import { HashMap, HashSet } from "./index.js";
+import { HASHMAP_SOURCE, HASHSET_SOURCE } from "./annotated-source.js";
 
 const log = document.getElementById("log");
 
@@ -8,9 +9,7 @@ function typeWriter(el, text, { speed = 22, onTick } = {}) {
   clearInterval(typingTimers.get(el));
 
   const textSpan = document.createElement("span");
-  const cursorSpan = document.createElement("span");
-  cursorSpan.className = "cursor";
-  el.replaceChildren(textSpan, cursorSpan);
+  el.replaceChildren(textSpan);
 
   let i = 0;
   const timer = setInterval(() => {
@@ -22,19 +21,21 @@ function typeWriter(el, text, { speed = 22, onTick } = {}) {
   typingTimers.set(el, timer);
 }
 
-const MAX_LOG_LINES = 6;
+const MAX_LOG_LINES = 20;
 
+// Newest command goes on the left; the row scrolls horizontally and older
+// entries drop off the right once MAX_LOG_LINES is exceeded.
 function logLine(text, type = "ok") {
   const line = document.createElement("div");
   line.className = type === "error" ? "log-line error" : "log-line";
-  log.appendChild(line);
+  log.prepend(line);
 
   while (log.children.length > MAX_LOG_LINES) {
-    log.removeChild(log.firstElementChild);
+    log.removeChild(log.lastElementChild);
   }
 
-  typeWriter(line, text, { onTick: () => (log.scrollTop = log.scrollHeight) });
-  log.scrollTop = log.scrollHeight;
+  typeWriter(line, text, { onTick: () => (log.scrollLeft = 0) });
+  log.scrollLeft = 0;
 }
 
 function showError(msg, invalidIds = []) {
@@ -51,19 +52,28 @@ function clear(id) {
   document.getElementById(id).value = "";
 }
 
-// Wraps a HashMap/HashSet with its UI state element and localStorage key so
-// both tabs can share the same update/persist/load logic.
+// Wraps a HashMap/HashSet with its UI elements and localStorage key so both
+// tabs can share the same update/persist/load logic. Renders the current
+// entries directly (one box per key) rather than the raw bucket layout, so
+// there's nothing to interpret beyond "these are the keys and values".
 function createController({
   prefix,
   collection,
   storageKey,
   serialize,
   restore,
+  buildRow,
 }) {
-  const stateEl = document.getElementById(`${prefix}-state`);
+  const statsEl = document.getElementById(`${prefix}-stats`);
+  const entriesEl = document.getElementById(`${prefix}-entries`);
 
   function update() {
-    typeWriter(stateEl, collection.toString());
+    const count = collection.length();
+    typeWriter(
+      statsEl,
+      `${count} ${count === 1 ? "entry" : "entries"} · capacity ${collection.capacity} · load ${collection.currentLoad().toFixed(2)}`,
+    );
+    entriesEl.replaceChildren(...serialize().map(buildRow));
   }
 
   function persist() {
@@ -82,6 +92,25 @@ function createController({
   }
 
   return { update, persist, load };
+}
+
+function entryRow(key, value) {
+  const row = document.createElement("div");
+  row.className = "entry-row";
+
+  const k = document.createElement("span");
+  k.className = "entry-key";
+  k.textContent = key;
+  row.appendChild(k);
+
+  if (value !== undefined) {
+    const v = document.createElement("span");
+    v.className = "entry-value";
+    v.textContent = value;
+    row.appendChild(v);
+  }
+
+  return row;
 }
 
 // Wires up one tab's command buttons from a declarative list. Each op reads
@@ -110,6 +139,7 @@ const hashMapCtl = createController({
   storageKey: "hashmap-state",
   serialize: () => hashMap.entries(),
   restore: ([k, v]) => hashMap.set(k, v),
+  buildRow: ([k, v]) => entryRow(k, v),
 });
 
 const hashSetCtl = createController({
@@ -118,6 +148,7 @@ const hashSetCtl = createController({
   storageKey: "hashset-state",
   restore: (v) => hashSet.set(v),
   serialize: () => hashSet.keys(),
+  buildRow: (v) => entryRow(v),
 });
 
 wireOps([
@@ -168,6 +199,14 @@ wireOps([
   {
     btn: "hashmap-btn-load",
     run: () => `currentLoad(): ${hashMap.currentLoad().toFixed(2)}`,
+  },
+  {
+    btn: "hashmap-btn-keys",
+    run: () => `keys(): ${JSON.stringify(hashMap.keys())}`,
+  },
+  {
+    btn: "hashmap-btn-values",
+    run: () => `values(): ${JSON.stringify(hashMap.values())}`,
   },
   {
     btn: "hashmap-btn-entries",
@@ -224,7 +263,7 @@ wireOps([
   },
 ]);
 
-// ── Tabs ──
+// ── Tabs (HashMap / HashSet) ──
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", () => {
     document
@@ -236,6 +275,60 @@ document.querySelectorAll(".tab").forEach((tab) => {
       panel.classList.toggle("hidden", panel.dataset.tab !== tab.dataset.tab);
     });
   });
+});
+
+// ── Action tabs (mutate / query), scoped to each column ──
+document.querySelectorAll(".action-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const commands = tab.closest(".col-commands");
+    commands
+      .querySelectorAll(".action-tab")
+      .forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
+
+    commands.querySelectorAll(".pane").forEach((pane) => {
+      pane.classList.toggle(
+        "hidden",
+        pane.dataset.action !== tab.dataset.action,
+      );
+    });
+  });
+});
+
+// ── "How it works" modal ──
+const howModal = document.getElementById("how-modal");
+const howModalTitle = document.getElementById("how-modal-title");
+const howModalCode = document.getElementById("how-modal-code");
+
+function renderCode(code) {
+  howModalCode.replaceChildren();
+  code.split("\n").forEach((line) => {
+    const lineEl = document.createElement("div");
+    lineEl.className = line.trim().startsWith("//")
+      ? "code-line comment"
+      : "code-line";
+    lineEl.textContent = line.length ? line : " ";
+    howModalCode.appendChild(lineEl);
+  });
+}
+
+function openHow(title, code) {
+  howModalTitle.textContent = title;
+  renderCode(code);
+  howModal.showModal();
+}
+
+document.getElementById("hashmap-btn-how").addEventListener("click", () => {
+  openHow("How HashMap works", HASHMAP_SOURCE);
+});
+document.getElementById("hashset-btn-how").addEventListener("click", () => {
+  openHow("How HashSet works", HASHSET_SOURCE);
+});
+document
+  .getElementById("how-modal-close")
+  .addEventListener("click", () => howModal.close());
+howModal.addEventListener("click", (e) => {
+  if (e.target === howModal) howModal.close();
 });
 
 // Quality of life: Enter runs the row's command, typing clears its error state.
