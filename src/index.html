@@ -25,186 +25,224 @@
 
       <div class="body">
         <section class="tabpanel" id="tab-hashmap" data-tab="hashmap">
-          <div class="intro">
-            <p class="line"><span class="prompt">$</span> node hashmap.js</p>
-            <h1>HashMap</h1>
-            <p class="desc">
-              Set, get, remove and inspect key/value pairs: the buckets below
-              update live as you run each command.
-            </p>
-          </div>
-
-          <div class="state-row">
-            <span class="prompt">&gt;</span>
-            <div id="hashmap-state" class="state-value">{ }</div>
-          </div>
-
-          <div class="rule"></div>
-
-          <div class="panes">
-            <div class="pane">
-              <p class="pane-label">mutate</p>
-
-              <div class="cmd-row">
-                <label for="hashmap-set-key">set</label>
-                <div class="fields">
-                  <input id="hashmap-set-key" type="text" placeholder="key" />
-                  <input
-                    id="hashmap-set-value"
-                    type="text"
-                    placeholder="value"
-                  />
+          <div class="layout">
+            <div class="col-commands">
+              <div class="intro">
+                <p class="line">
+                  <span class="prompt">$</span> node hashmap.js
+                </p>
+                <div class="intro-head">
+                  <h1>HashMap</h1>
+                  <button class="how-btn" id="hashmap-btn-how">
+                    how it works
+                  </button>
                 </div>
-                <button id="hashmap-btn-set" class="run">run</button>
+                <p class="desc">
+                  Set, get, remove and inspect key/value pairs: the entries on
+                  the right update live as you run each command.
+                </p>
               </div>
 
-              <div class="cmd-row">
-                <label for="hashmap-remove-key">remove</label>
-                <div class="fields">
-                  <input
-                    id="hashmap-remove-key"
-                    type="text"
-                    placeholder="key"
-                  />
-                </div>
-                <button id="hashmap-btn-remove" class="run">run</button>
+              <div class="action-tabs">
+                <button class="action-tab active" data-action="mutate">
+                  mutate
+                </button>
+                <button class="action-tab" data-action="query">query</button>
               </div>
 
-              <div class="cmd-row">
-                <label>clear</label>
-                <div class="fields"></div>
-                <button id="hashmap-btn-clear" class="run danger">run</button>
+              <div class="pane" data-action="mutate">
+                <div class="cmd-row">
+                  <label for="hashmap-set-key">set</label>
+                  <div class="fields">
+                    <input id="hashmap-set-key" type="text" placeholder="key" />
+                    <input
+                      id="hashmap-set-value"
+                      type="text"
+                      placeholder="value"
+                    />
+                  </div>
+                  <button id="hashmap-btn-set" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label for="hashmap-remove-key">remove</label>
+                  <div class="fields">
+                    <input
+                      id="hashmap-remove-key"
+                      type="text"
+                      placeholder="key"
+                    />
+                  </div>
+                  <button id="hashmap-btn-remove" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>clear</label>
+                  <div class="fields"></div>
+                  <button id="hashmap-btn-clear" class="run danger">run</button>
+                </div>
+              </div>
+
+              <div class="pane hidden" data-action="query">
+                <div class="cmd-row">
+                  <label for="hashmap-get-key">get</label>
+                  <div class="fields">
+                    <input id="hashmap-get-key" type="text" placeholder="key" />
+                  </div>
+                  <button id="hashmap-btn-get" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label for="hashmap-has-key">has</label>
+                  <div class="fields">
+                    <input id="hashmap-has-key" type="text" placeholder="key" />
+                  </div>
+                  <button id="hashmap-btn-has" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>length</label>
+                  <div class="fields"></div>
+                  <button id="hashmap-btn-length" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>currentLoad</label>
+                  <div class="fields"></div>
+                  <button id="hashmap-btn-load" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>keys</label>
+                  <div class="fields"></div>
+                  <button id="hashmap-btn-keys" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>values</label>
+                  <div class="fields"></div>
+                  <button id="hashmap-btn-values" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>entries</label>
+                  <div class="fields"></div>
+                  <button id="hashmap-btn-entries" class="run">run</button>
+                </div>
               </div>
             </div>
 
-            <div class="pane-divider"></div>
-
-            <div class="pane">
-              <p class="pane-label">query</p>
-
-              <div class="cmd-row">
-                <label for="hashmap-get-key">get</label>
-                <div class="fields">
-                  <input id="hashmap-get-key" type="text" placeholder="key" />
-                </div>
-                <button id="hashmap-btn-get" class="run">run</button>
+            <div class="col-viz">
+              <div class="stats-row">
+                <span class="prompt">&gt;</span>
+                <span id="hashmap-stats" class="stats-value"
+                  >0 entries &middot; capacity 16 &middot; load 0.00</span
+                >
               </div>
-
-              <div class="cmd-row">
-                <label for="hashmap-has-key">has</label>
-                <div class="fields">
-                  <input id="hashmap-has-key" type="text" placeholder="key" />
-                </div>
-                <button id="hashmap-btn-has" class="run">run</button>
-              </div>
-
-              <div class="cmd-row">
-                <label>length</label>
-                <div class="fields"></div>
-                <button id="hashmap-btn-length" class="run">run</button>
-              </div>
-
-              <div class="cmd-row">
-                <label>currentLoad</label>
-                <div class="fields"></div>
-                <button id="hashmap-btn-load" class="run">run</button>
-              </div>
-
-              <div class="cmd-row">
-                <label>entries</label>
-                <div class="fields"></div>
-                <button id="hashmap-btn-entries" class="run">run</button>
-              </div>
+              <div id="hashmap-entries" class="entries"></div>
             </div>
           </div>
         </section>
 
         <section class="tabpanel hidden" id="tab-hashset" data-tab="hashset">
-          <div class="intro">
-            <p class="line"><span class="prompt">$</span> node hashset.js</p>
-            <h1>HashSet</h1>
-            <p class="desc">
-              Add, remove and inspect unique values: the buckets below update
-              live as you run each command.
-            </p>
-          </div>
-
-          <div class="state-row">
-            <span class="prompt">&gt;</span>
-            <div id="hashset-state" class="state-value">{ }</div>
-          </div>
-
-          <div class="rule"></div>
-
-          <div class="panes">
-            <div class="pane">
-              <p class="pane-label">mutate</p>
-
-              <div class="cmd-row">
-                <label for="hashset-set-value">set</label>
-                <div class="fields">
-                  <input
-                    id="hashset-set-value"
-                    type="text"
-                    placeholder="value"
-                  />
+          <div class="layout">
+            <div class="col-commands">
+              <div class="intro">
+                <p class="line">
+                  <span class="prompt">$</span> node hashset.js
+                </p>
+                <div class="intro-head">
+                  <h1>HashSet</h1>
+                  <button class="how-btn" id="hashset-btn-how">
+                    how it works
+                  </button>
                 </div>
-                <button id="hashset-btn-set" class="run">run</button>
+                <p class="desc">
+                  Add, remove and inspect unique values: the entries on the
+                  right update live as you run each command.
+                </p>
               </div>
 
-              <div class="cmd-row">
-                <label for="hashset-remove-value">remove</label>
-                <div class="fields">
-                  <input
-                    id="hashset-remove-value"
-                    type="text"
-                    placeholder="value"
-                  />
-                </div>
-                <button id="hashset-btn-remove" class="run">run</button>
+              <div class="action-tabs">
+                <button class="action-tab active" data-action="mutate">
+                  mutate
+                </button>
+                <button class="action-tab" data-action="query">query</button>
               </div>
 
-              <div class="cmd-row">
-                <label>clear</label>
-                <div class="fields"></div>
-                <button id="hashset-btn-clear" class="run danger">run</button>
+              <div class="pane" data-action="mutate">
+                <div class="cmd-row">
+                  <label for="hashset-set-value">set</label>
+                  <div class="fields">
+                    <input
+                      id="hashset-set-value"
+                      type="text"
+                      placeholder="value"
+                    />
+                  </div>
+                  <button id="hashset-btn-set" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label for="hashset-remove-value">remove</label>
+                  <div class="fields">
+                    <input
+                      id="hashset-remove-value"
+                      type="text"
+                      placeholder="value"
+                    />
+                  </div>
+                  <button id="hashset-btn-remove" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>clear</label>
+                  <div class="fields"></div>
+                  <button id="hashset-btn-clear" class="run danger">run</button>
+                </div>
+              </div>
+
+              <div class="pane hidden" data-action="query">
+                <div class="cmd-row">
+                  <label for="hashset-has-value">has</label>
+                  <div class="fields">
+                    <input
+                      id="hashset-has-value"
+                      type="text"
+                      placeholder="value"
+                    />
+                  </div>
+                  <button id="hashset-btn-has" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>length</label>
+                  <div class="fields"></div>
+                  <button id="hashset-btn-length" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>currentLoad</label>
+                  <div class="fields"></div>
+                  <button id="hashset-btn-load" class="run">run</button>
+                </div>
+
+                <div class="cmd-row">
+                  <label>keys</label>
+                  <div class="fields"></div>
+                  <button id="hashset-btn-keys" class="run">run</button>
+                </div>
               </div>
             </div>
 
-            <div class="pane-divider"></div>
-
-            <div class="pane">
-              <p class="pane-label">query</p>
-
-              <div class="cmd-row">
-                <label for="hashset-has-value">has</label>
-                <div class="fields">
-                  <input
-                    id="hashset-has-value"
-                    type="text"
-                    placeholder="value"
-                  />
-                </div>
-                <button id="hashset-btn-has" class="run">run</button>
+            <div class="col-viz">
+              <div class="stats-row">
+                <span class="prompt">&gt;</span>
+                <span id="hashset-stats" class="stats-value"
+                  >0 entries &middot; capacity 16 &middot; load 0.00</span
+                >
               </div>
-
-              <div class="cmd-row">
-                <label>length</label>
-                <div class="fields"></div>
-                <button id="hashset-btn-length" class="run">run</button>
-              </div>
-
-              <div class="cmd-row">
-                <label>currentLoad</label>
-                <div class="fields"></div>
-                <button id="hashset-btn-load" class="run">run</button>
-              </div>
-
-              <div class="cmd-row">
-                <label>keys</label>
-                <div class="fields"></div>
-                <button id="hashset-btn-keys" class="run">run</button>
-              </div>
+              <div id="hashset-entries" class="entries"></div>
             </div>
           </div>
         </section>
@@ -213,6 +251,20 @@
 
         <div id="log" class="log" aria-live="polite"></div>
       </div>
+
+      <dialog id="how-modal" class="how-modal">
+        <div class="how-modal-header">
+          <span id="how-modal-title">How it works</span>
+          <button
+            class="how-modal-close"
+            id="how-modal-close"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
+        <pre class="how-modal-code"><code id="how-modal-code"></code></pre>
+      </dialog>
     </main>
   </body>
 </html>

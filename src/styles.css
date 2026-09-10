@@ -144,55 +144,140 @@ body {
   color: var(--violet);
 }
 
+/* The commands column and the entries column each scroll independently
+   (see .pane and .entries below); the rule and the log stay outside this
+   entirely, so notifications are always visible. */
 .tabpanel {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  flex: 1;
 }
 
-/* ── Intro ── */
+/* ── Intro (kept compact so the command panes never need to scroll) ── */
 .intro {
   flex-shrink: 0;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
 .intro .line {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink-dim);
-  margin-bottom: 14px;
+  margin-bottom: 4px;
 }
 
 .intro .line .prompt {
   margin-right: 6px;
 }
 
+.intro-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
 h1 {
-  font-size: 26px;
+  font-size: 19px;
   font-weight: 600;
   letter-spacing: -0.2px;
-  margin-bottom: 10px;
 }
 
 .desc {
   color: var(--ink-dim);
-  font-size: 13.5px;
-  line-height: 1.75;
+  font-size: 12.5px;
+  line-height: 1.5;
   max-width: 480px;
 }
 
-/* ── State ── */
-.state-row {
+.how-btn {
   flex-shrink: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  font-size: 15px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink-dim);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
-.state-value {
+.how-btn:hover {
   color: var(--violet);
-  word-break: break-word;
+  border-color: var(--violet);
+}
+
+/* ── "how it works" modal ── */
+.how-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: min(640px, 92vw);
+  max-height: 80vh;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(19, 19, 22, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--ink);
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(155, 107, 255, 0.08);
+}
+
+.how-modal::backdrop {
+  background: rgba(5, 5, 7, 0.7);
+}
+
+.how-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(26, 26, 31, 0.5);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--violet);
+}
+
+.how-modal-close {
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.how-modal-close:hover {
+  color: var(--danger);
+}
+
+.how-modal-code {
+  margin: 0;
+  padding: 18px 20px;
+  overflow: auto;
+  max-height: calc(80vh - 51px);
+  background: rgba(13, 13, 16, 0.4);
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 1.65;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.code-line.comment {
+  color: var(--ink-dim);
 }
 
 .rule {
@@ -202,31 +287,63 @@ h1 {
   margin: 20px 0;
 }
 
-/* ── Panes (split like tmux) ── */
-.panes {
+/* ── Two-column layout: commands on the left, entries on the right ── */
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.col-commands {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Action tabs (mutate / query) ── */
+.action-tabs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.action-tab {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  padding: 6px 4px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.action-tab::before {
+  content: "# ";
+  color: #4a4a55;
+}
+
+.action-tab:hover {
+  color: var(--ink);
+}
+
+.action-tab.active {
+  color: var(--violet);
+  border-bottom-color: var(--violet);
+}
+
+.pane {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  gap: 22px;
-}
-
-.pane-divider {
-  background: var(--line);
-}
-
-.pane-label {
-  font-size: 12px;
-  color: var(--ink-dim);
-  margin-bottom: 6px;
-}
-
-.pane-label::before {
-  content: "# ";
-  color: #4a4a55;
 }
 
 /* ── Command rows ── */
@@ -234,7 +351,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 0;
+  padding: 6px 0;
   border-top: 1px solid var(--line);
 }
 
@@ -348,40 +465,78 @@ button.run.danger:hover {
   color: #ff8a8a;
 }
 
-/* ── Terminal cursor ── */
-.cursor {
-  display: inline-block;
-  width: 8px;
-  height: 1em;
-  margin-left: 2px;
-  background: var(--violet);
-  vertical-align: -2px;
-  animation: cursor-blink 1s steps(1) infinite;
+/* ── Entries view: one box per key (and value, for HashMap) ── */
+.col-viz {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.log-line.error .cursor {
-  background: var(--danger);
-}
-
-@keyframes cursor-blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-
-/* ── Log (terminal scrollback) ── */
-.log {
+.stats-row {
   flex-shrink: 0;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+
+.stats-value {
+  color: var(--violet);
+}
+
+.entries {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 150px;
-  overflow-y: auto;
+}
+
+.entries:empty::before {
+  content: "no entries yet";
+  color: #45454e;
+  font-size: 12.5px;
+}
+
+.entry-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-alt);
+}
+
+.entry-key {
+  flex-shrink: 0;
+  color: var(--magenta);
+  font-weight: 600;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.entry-value {
+  min-width: 0;
+  color: var(--ink);
+  font-size: 13px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* ── Log (terminal scrollback): one scrolling row, newest on the left ── */
+.log {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
@@ -390,16 +545,18 @@ button.run.danger:hover {
   content: "waiting for input…";
   color: #4c4c56;
   font-size: 13px;
+  white-space: nowrap;
 }
 
 .log-line {
+  flex: 0 0 auto;
+  white-space: nowrap;
   background: var(--surface-alt);
   border-left: 2px solid var(--violet);
   border-radius: 0 4px 4px 0;
-  padding: 8px 14px;
-  font-size: 13px;
+  padding: 7px 12px;
+  font-size: 12.5px;
   color: var(--ink);
-  flex-shrink: 0;
 }
 
 .log-line::before {
@@ -438,23 +595,17 @@ button.run.danger:hover {
     margin: 14px 0;
   }
 
-  .log {
-    max-height: 110px;
-  }
-
-  .panes {
+  .layout {
     grid-template-columns: 1fr;
-    gap: 4px;
+    gap: 18px;
   }
 
-  .pane-divider {
-    display: none;
+  .pane {
+    max-height: 260px;
   }
 
-  .pane + .pane {
-    margin-top: 18px;
-    padding-top: 18px;
-    border-top: 1px solid var(--line);
+  .entries {
+    max-height: 220px;
   }
 
   .cmd-row {
@@ -464,11 +615,5 @@ button.run.danger:hover {
   .cmd-row .fields {
     flex: 1 1 100%;
     order: 3;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cursor {
-    animation: none;
   }
 }
