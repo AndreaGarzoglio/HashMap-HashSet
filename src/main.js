@@ -1,5 +1,23 @@
 import { HashMap, HashSet } from "./index.js";
 import { HASHMAP_SOURCE, HASHSET_SOURCE } from "./annotated-source.js";
+import faviconSvg from "./favicon.svg";
+import favicon32 from "./favicon-32.png";
+import favicon180 from "./favicon-180.png";
+
+// Imported (rather than referenced from index.html) so each file gets a
+// content-hashed URL: browsers cache favicons very aggressively by URL, so
+// a hash change is what actually gets an updated icon to show up.
+function addIcon(rel, href, attrs = {}) {
+  const link = document.createElement("link");
+  link.rel = rel;
+  link.href = href;
+  Object.assign(link, attrs);
+  document.head.appendChild(link);
+}
+
+addIcon("icon", faviconSvg, { type: "image/svg+xml" });
+addIcon("icon", favicon32, { type: "image/png", sizes: "32x32" });
+addIcon("apple-touch-icon", favicon180, { sizes: "180x180" });
 
 const log = document.getElementById("log");
 
