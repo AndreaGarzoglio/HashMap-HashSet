@@ -5,7 +5,11 @@ export default {
   mode: "development",
   entry: "./src/main.js",
   output: {
-    filename: "main.js",
+    // Content-hashed so a redeploy actually invalidates the browser's
+    // cached copy: an unchanging "main.js" URL meant CSS/behavior changes
+    // (all bundled into this one file, injected by style-loader) could
+    // silently keep serving a stale cached version after a deploy.
+    filename: "main.[contenthash].js",
     path: path.resolve(import.meta.dirname, "docs"),
     clean: true,
   },
