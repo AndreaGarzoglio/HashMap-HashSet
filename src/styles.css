@@ -28,22 +28,9 @@ body {
 
 body {
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  background:
-    radial-gradient(
-      700px 560px at 10% -5%,
-      rgba(155, 107, 255, 0.2),
-      transparent 60%
-    ),
-    radial-gradient(
-      600px 500px at 100% 100%,
-      rgba(232, 121, 249, 0.14),
-      transparent 60%
-    ),
-    radial-gradient(rgba(155, 107, 255, 0.16) 1px, transparent 1px), var(--bg);
-  background-size:
-    100% 100%,
-    100% 100%,
-    22px 22px;
+  background: radial-gradient(rgba(155, 107, 255, 0.16) 1px, transparent 1px) 0
+    0 / 22px 22px fixed;
+  background-color: var(--bg);
   color: var(--ink);
   line-height: 1.6;
   display: flex;
